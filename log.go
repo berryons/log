@@ -17,6 +17,10 @@ func SetLogger(logLevel, logPath, logFileName, fileLogLevel string, callerSkip i
 	gLogger = wrapper.New(logLevel, logPath, logFileName, fileLogLevel, callerSkip, isJson)
 }
 
+func GetLogger() interface{} {
+	return gLogger.GetLogger()
+}
+
 func Enable() {
 	gIsLogging = true
 }
@@ -26,6 +30,7 @@ func Disable() {
 }
 
 type Logger interface {
+	GetLogger() interface{}
 	Print(v ...any)
 	Printf(format string, v ...any)
 	Println(v ...any)

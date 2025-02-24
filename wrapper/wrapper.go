@@ -43,110 +43,114 @@ func New(logLevel, logPath, logFileName, fileLogLevel string, callerSkip int, is
 	// Create the logger with additional context information (caller, stack trace)
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel), zap.AddCallerSkip(callerSkip))
 
-	return &Wrapper{logger: logger, LogPath: realLogPath}
+	return &Wrapper{Logger: logger, LogPath: realLogPath}
 }
 
 type Wrapper struct {
-	logger  *zap.Logger
+	Logger  *zap.Logger
 	LogPath string
+}
+
+func (iSelf Wrapper) GetLogger() interface{} {
+	return iSelf.Logger
 }
 
 // Print calls Output to print to the standard logger.
 // Arguments are handled in the manner of [fmt.Print].
-func (pSelf *Wrapper) Print(v ...any) {
-	if pSelf.logger != nil {
+func (iSelf Wrapper) Print(v ...any) {
+	if iSelf.Logger != nil {
 		checkedStr := checkNewLine(fmt.Sprintf("%s", v...))
-		pSelf.logger.Info(checkedStr)
-		pSelf.sync()
+		iSelf.Logger.Info(checkedStr)
+		iSelf.sync()
 	}
 }
 
 // Printf calls Output to print to the standard logger.
 // Arguments are handled in the manner of [fmt.Printf].
-func (pSelf *Wrapper) Printf(format string, v ...any) {
-	if pSelf.logger != nil {
+func (iSelf Wrapper) Printf(format string, v ...any) {
+	if iSelf.Logger != nil {
 		checkedStr := checkNewLine(fmt.Sprintf(format, v...))
-		pSelf.logger.Info(checkedStr)
-		pSelf.sync()
+		iSelf.Logger.Info(checkedStr)
+		iSelf.sync()
 	}
 }
 
 // Println calls Output to print to the standard logger.
 // Arguments are handled in the manner of [fmt.Println].
-func (pSelf *Wrapper) Println(v ...any) {
-	if pSelf.logger != nil {
+func (iSelf Wrapper) Println(v ...any) {
+	if iSelf.Logger != nil {
 		checkedStr := checkNewLine(fmt.Sprintf("%s", v...))
-		pSelf.logger.Info(checkedStr)
-		pSelf.sync()
+		iSelf.Logger.Info(checkedStr)
+		iSelf.sync()
 	}
 }
 
 // Fatal is equivalent to [Print] followed by a call to [os.Exit](1).
-func (pSelf *Wrapper) Fatal(v ...any) {
-	if pSelf.logger != nil {
+func (iSelf Wrapper) Fatal(v ...any) {
+	if iSelf.Logger != nil {
 		checkedStr := checkNewLine(fmt.Sprintf("%s", v...))
-		pSelf.logger.Fatal(checkedStr)
-		pSelf.sync()
+		iSelf.Logger.Fatal(checkedStr)
+		iSelf.sync()
 	}
 	os.Exit(1)
 }
 
 // Fatalf is equivalent to [Printf] followed by a call to [os.Exit](1).
-func (pSelf *Wrapper) Fatalf(format string, v ...any) {
-	if pSelf.logger != nil {
+func (iSelf Wrapper) Fatalf(format string, v ...any) {
+	if iSelf.Logger != nil {
 		checkedStr := checkNewLine(fmt.Sprintf(format, v...))
-		pSelf.logger.Fatal(checkedStr)
-		pSelf.sync()
+		iSelf.Logger.Fatal(checkedStr)
+		iSelf.sync()
 	}
 	os.Exit(1)
 }
 
 // Fatalln is equivalent to [Println] followed by a call to [os.Exit](1).
-func (pSelf *Wrapper) Fatalln(v ...any) {
-	if pSelf.logger != nil {
+func (iSelf Wrapper) Fatalln(v ...any) {
+	if iSelf.Logger != nil {
 		checkedStr := checkNewLine(fmt.Sprintf("%s", v...))
-		pSelf.logger.Fatal(checkedStr)
-		pSelf.sync()
+		iSelf.Logger.Fatal(checkedStr)
+		iSelf.sync()
 	}
 	os.Exit(1)
 }
 
 // Panic is equivalent to [Print] followed by a call to panic().
-func (pSelf *Wrapper) Panic(v ...any) {
+func (iSelf Wrapper) Panic(v ...any) {
 	checkedStr := checkNewLine(fmt.Sprintf("%s", v...))
-	if pSelf.logger == nil {
-		pSelf.logger.Panic(checkedStr)
-		pSelf.sync()
+	if iSelf.Logger == nil {
+		iSelf.Logger.Panic(checkedStr)
+		iSelf.sync()
 	}
 	panic(checkedStr)
 }
 
 // Panicf is equivalent to [Printf] followed by a call to panic().
-func (pSelf *Wrapper) Panicf(format string, v ...any) {
+func (iSelf Wrapper) Panicf(format string, v ...any) {
 	checkedStr := checkNewLine(fmt.Sprintf(format, v...))
-	if pSelf.logger == nil {
-		pSelf.logger.Panic(checkedStr)
-		pSelf.sync()
+	if iSelf.Logger == nil {
+		iSelf.Logger.Panic(checkedStr)
+		iSelf.sync()
 	}
 	panic(checkedStr)
 }
 
 // Panicln is equivalent to [Println] followed by a call to panic().
-func (pSelf *Wrapper) Panicln(v ...any) {
+func (iSelf Wrapper) Panicln(v ...any) {
 	checkedStr := checkNewLine(fmt.Sprintf("%s", v...))
-	if pSelf.logger == nil {
-		pSelf.logger.Panic(checkedStr)
-		pSelf.sync()
+	if iSelf.Logger == nil {
+		iSelf.Logger.Panic(checkedStr)
+		iSelf.sync()
 	}
 	panic(checkedStr)
 }
 
-func (pSelf *Wrapper) sync() {
-	err := pSelf.logger.Sync()
+func (iSelf Wrapper) sync() {
+	err := iSelf.Logger.Sync()
 	if err != nil {
 		errMsg := fmt.Sprintf("[ERROR] Logging error: %s", err)
-		if pSelf.logger != nil {
-			pSelf.logger.Error(errMsg)
+		if iSelf.Logger != nil {
+			iSelf.Logger.Error(errMsg)
 		} else {
 			log.Println(errMsg)
 		}
